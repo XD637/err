@@ -5,6 +5,10 @@ err.exe
 *.dll
 *.so
 *.dylib
+err-darwin-amd64
+err-darwin-arm64
+err-linux-amd64
+err-windows-amd64.exe
 
 # Test binary
 *.test
