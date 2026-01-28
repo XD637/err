@@ -8,7 +8,13 @@ Strips timestamps, paths, memory addresses, and noise. Shows you what matters.
 
 ## Installation
 
-### Go (Recommended)
+### Brew (Recommended)
+
+```bash
+brew install XD637/err/err
+```
+
+### Go 
 
 ```bash
 go install github.com/XD637/err@latest
