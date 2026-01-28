@@ -51,8 +51,9 @@ brews:
     description: Clean and normalize error messages
     license: MIT
     repository:
-      owner: yourusername
+      owner: XD637
       name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
