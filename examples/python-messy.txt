@@ -1,0 +1,16 @@
+ubuntu@server:~/myproject$ python main.py
+2024-01-28 14:25:30,123 - INFO - Starting data processing pipeline
+2024-01-28 14:25:30,456 - DEBUG - Loading data from /var/data/input.csv
+2024-01-28 14:25:31,789 - INFO - Processing 10000 records
+2024-01-28 14:25:32,012 - ERROR - Processing failed
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/main.py", line 42, in <module>
+    result = process_batch(data)
+  File "/home/ubuntu/myproject/processors/batch.py", line 89, in process_batch
+    return transform_data(batch)
+  File "/home/ubuntu/myproject/processors/transform.py", line 156, in transform_data
+    value = row['amount'].strip().replace('$', '')
+AttributeError: 'NoneType' object has no attribute 'strip'
+2024-01-28 14:25:32,234 - ERROR - Pipeline failed after 2.1 seconds
+2024-01-28 14:25:32,235 - INFO - Cleaning up resources
+ubuntu@server:~/myproject$

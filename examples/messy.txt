@@ -1,0 +1,18 @@
+[2024-01-28 14:25:31] INFO: Starting application...
+[2024-01-28 14:25:32] DEBUG: Loading configuration from /etc/myapp/config.json
+[2024-01-28 14:25:32] INFO: Database connection established
+[2024-01-28 14:25:33] INFO: Server listening on port 3000
+[2024-01-28 14:25:45] ERROR: Request failed with error:
+
+2024-01-28T14:25:45.123Z TypeError: Cannot read property 'user' of undefined
+    at getUserData (/home/ubuntu/projects/myapp/src/controllers/userController.js:156:23)
+    at processRequest (/home/ubuntu/projects/myapp/src/middleware/auth.js:89:15)
+    at Layer.handle [as handle_request] (/home/ubuntu/projects/myapp/node_modules/express/lib/router/layer.js:95:5)
+    at next (/home/ubuntu/projects/myapp/node_modules/express/lib/router/route.js:137:13)
+    at Route.dispatch (/home/ubuntu/projects/myapp/node_modules/express/lib/router/route.js:112:3)
+    at Layer.handle [as handle_request] (/home/ubuntu/projects/myapp/node_modules/express/lib/router/layer.js:95:5)
+
+[2024-01-28 14:25:45] ERROR: Request ID: 550e8400-e29b-41d4-a716-446655440000
+[2024-01-28 14:25:45] ERROR: Memory usage: 0x7f8a9b0c1d2e3f4a
+[2024-01-28 14:25:45] INFO: Retrying request...
+[2024-01-28 14:25:46] INFO: Retry attempt 1 failed

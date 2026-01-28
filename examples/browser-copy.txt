@@ -1,0 +1,27 @@
+Console output:
+
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! myapp@1.0.0 test: `jest --coverage`
+npm ERR! Exit status 1
+npm ERR! 
+npm ERR! Failed at the myapp@1.0.0 test script.
+
+FAIL src/utils/validator.test.js
+  ● Test suite failed to run
+
+    ReferenceError: window is not defined
+
+      at Object.<anonymous> (src/utils/validator.js:3:1)
+      at Object.<anonymous> (src/utils/validator.test.js:1:1)
+      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1299:24)
+      at Runtime._loadModule (node_modules/jest-runtime/build/index.js:898:12)
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        2.456 s
+Ran all test suites.
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /home/user/.npm/_logs/2024-01-28T14_25_30_123Z-debug.log
