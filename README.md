@@ -8,21 +8,25 @@ Strips timestamps, paths, memory addresses, and noise. Shows you what matters.
 
 ## Installation
 
-### Homebrew
-
-```bash
-brew install err
-```
-
-### Go
+### Go (Recommended)
 
 ```bash
 go install github.com/XD637/err@latest
 ```
 
-### Binary releases
+### Manual Download
 
-Download from [releases page](https://github.com/XD637/err/releases).
+Download the latest binary from [releases page](https://github.com/XD637/err/releases) (when available).
+
+### Build from Source
+
+```bash
+git clone https://github.com/XD637/err.git
+cd err
+go build -o err
+# Move to your PATH
+mv err /usr/local/bin/  # Linux/Mac
+```
 
 ## Usage
 
