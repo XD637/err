@@ -1,0 +1,13 @@
+thread 'main' panicked at 'assertion failed: x == y', src/lib.rs:10:5
+stack backtrace:
+   0: rust_begin_unwind
+             at /rustc/d5a82bbd26e1ad8b7401f6a718a9c57c96905483/library/std/src/panicking.rs:575:5
+   1: core::panicking::panic_fmt
+             at /rustc/d5a82bbd26e1ad8b7401f6a718a9c57c96905483/library/core/src/panicking.rs:64:14
+   2: myapp::calculate
+             at ./src/lib.rs:10:5
+   3: myapp::main
+             at ./src/main.rs:5:5
+   4: core::ops::function::FnOnce::call_once
+             at /rustc/d5a82bbd26e1ad8b7401f6a718a9c57c96905483/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.

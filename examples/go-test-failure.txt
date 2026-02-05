@@ -1,0 +1,5 @@
+--- FAIL: TestCalculate (0.00s)
+    calculator_test.go:25: Expected 10, got 5
+    calculator_test.go:30: Expected true, got false
+FAIL
+FAIL	github.com/user/myapp	0.123s

@@ -1,0 +1,4 @@
+# github.com/user/myapp
+./main.go:15:2: undefined: fmt.Printl
+./main.go:20:15: cannot use "hello" (type untyped string) as type int in assignment
+./utils.go:42:9: syntax error: unexpected newline, expecting comma or }

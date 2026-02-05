@@ -1,0 +1,4 @@
+  File "/home/user/projects/app/script.py", line 15
+    if x == 5
+            ^
+SyntaxError: invalid syntax

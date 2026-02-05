@@ -98,32 +98,58 @@ func detectFormat(text string) string {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
+		// Rust compile errors: "error[E0382]:"
+		if strings.HasPrefix(line, "error[E") && strings.Contains(line, "]:") {
+			return "rust"
+		}
+
+		// Rust panic: "thread 'main' panicked at"
+		if strings.Contains(line, "panicked at") {
+			return "rust"
+		}
+
 		// Python: "Traceback (most recent call last):"
 		if strings.Contains(line, "Traceback (most recent call last)") {
 			return "python"
 		}
 
-		// JavaScript: "Error:" or "at " (after trimming)
-		if strings.HasPrefix(line, "at ") ||
-			regexp.MustCompile(`(TypeError|ReferenceError|SyntaxError|Error):`).MatchString(line) {
+		// Python syntax/import errors
+		if regexp.MustCompile(`^(SyntaxError|IndentationError|TabError|ModuleNotFoundError|ImportError):`).MatchString(line) {
+			return "python"
+		}
+
+		// TypeScript compile errors: "src/file.ts:42:5 - error TS"
+		if strings.Contains(line, " - error TS") {
 			return "javascript"
 		}
 
-		// Java: "Exception in thread" or stack with "at "
+		// JavaScript/Node.js: "Error:" or "at " (stack trace)
+		if strings.HasPrefix(line, "at ") ||
+			regexp.MustCompile(`(TypeError|ReferenceError|SyntaxError|Error|UnhandledPromiseRejectionWarning):`).MatchString(line) {
+			return "javascript"
+		}
+
+		// Java: "Exception in thread" or stack with "\tat "
 		if strings.Contains(line, "Exception in thread") ||
 			strings.HasPrefix(line, "\tat ") {
 			return "java"
 		}
 
-		// Go: "panic:" or "goroutine"
-		if strings.HasPrefix(line, "panic:") ||
-			strings.HasPrefix(line, "goroutine ") {
+		// Go build errors: "./main.go:15:2:"
+		if regexp.MustCompile(`^\./?\w+\.go:\d+:\d+:`).MatchString(line) {
 			return "go"
 		}
 
-		// Rust: "thread 'main' panicked at"
-		if strings.Contains(line, "panicked at") {
-			return "rust"
+		// Go test failures: "--- FAIL:"
+		if strings.HasPrefix(line, "--- FAIL:") {
+			return "go"
+		}
+
+		// Go panic: "panic:" or "goroutine" or "fatal error:"
+		if strings.HasPrefix(line, "panic:") ||
+			strings.HasPrefix(line, "goroutine ") ||
+			strings.HasPrefix(line, "fatal error:") {
+			return "go"
 		}
 	}
 

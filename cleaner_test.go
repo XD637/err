@@ -148,69 +148,181 @@ func TestDeduplicateFrames(t *testing.T) {
 }
 
 func TestCleanJavaScript(t *testing.T) {
-	input := `TypeError: Cannot read property 'foo' of undefined
+	tests := []struct {
+		name         string
+		input        string
+		expectedType string
+		expectedMsg  string
+		expectStack  bool
+	}{
+		{
+			name: "Standard TypeError",
+			input: `TypeError: Cannot read property 'foo' of undefined
     at Object.<anonymous> (/Users/dev/app/index.js:42:5)
-    at Module._compile (internal/modules/cjs/loader.js:1063:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1092:10)`
+    at Module._compile (internal/modules/cjs/loader.js:1063:30)`,
+			expectedType: "TypeError",
+			expectedMsg:  "Cannot read property 'foo' of undefined",
+			expectStack:  true,
+		},
+		{
+			name: "Unhandled Promise Rejection",
+			input: `2024-01-28T14:10:36.123Z UnhandledPromiseRejectionWarning: Error: Database connection failed
+    at Database.connect (/home/user/projects/myapp/src/database.js:42:15)`,
+			expectedType: "Error",
+			expectedMsg:  "Database connection failed",
+			expectStack:  true,
+		},
+		{
+			name: "TypeScript compile error",
+			input: `src/index.ts:42:5 - error TS2322: Type 'string' is not assignable to type 'number'.
 
-	result := cleanJavaScript(input)
-
-	if result.Type != "TypeError" {
-		t.Errorf("Type = %v, want TypeError", result.Type)
+42     const count: number = "hello";
+       ~~~~~`,
+			expectedType: "TS2322",
+			expectedMsg:  "Type 'string' is not assignable to type 'number'.",
+			expectStack:  false,
+		},
 	}
 
-	if !strings.Contains(result.Message, "Cannot read property") {
-		t.Errorf("Message should contain error text, got %v", result.Message)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := cleanJavaScript(tt.input)
 
-	if len(result.Stack) == 0 {
-		t.Error("Stack should not be empty")
+			if result.Type != tt.expectedType {
+				t.Errorf("Type = %v, want %v", result.Type, tt.expectedType)
+			}
+
+			if !strings.Contains(result.Message, tt.expectedMsg) {
+				t.Errorf("Message should contain %q, got %v", tt.expectedMsg, result.Message)
+			}
+
+			if tt.expectStack && len(result.Stack) == 0 {
+				t.Error("Stack should not be empty")
+			}
+		})
 	}
 }
 
 func TestCleanPython(t *testing.T) {
-	input := `Traceback (most recent call last):
+	tests := []struct {
+		name         string
+		input        string
+		expectedType string
+		expectedMsg  string
+		expectStack  bool
+	}{
+		{
+			name: "Standard ValueError",
+			input: `Traceback (most recent call last):
   File "/home/user/app/main.py", line 42, in <module>
     raise ValueError("invalid input")
-ValueError: invalid input`
-
-	result := cleanPython(input)
-
-	if result.Type != "ValueError" {
-		t.Errorf("Type = %v, want ValueError", result.Type)
+ValueError: invalid input`,
+			expectedType: "ValueError",
+			expectedMsg:  "invalid input",
+			expectStack:  true,
+		},
+		{
+			name: "Syntax Error",
+			input: `  File "/home/user/projects/app/script.py", line 15
+    if x == 5
+            ^
+SyntaxError: invalid syntax`,
+			expectedType: "SyntaxError",
+			expectedMsg:  "invalid syntax",
+			expectStack:  true,
+		},
+		{
+			name: "Import Error",
+			input: `Traceback (most recent call last):
+  File "/home/user/projects/app/main.py", line 3, in <module>
+    from mymodule import something
+  File "/home/user/projects/app/mymodule.py", line 10, in <module>
+    import nonexistent_package
+ModuleNotFoundError: No module named 'nonexistent_package'`,
+			expectedType: "ModuleNotFoundError",
+			expectedMsg:  "No module named 'nonexistent_package'",
+			expectStack:  true,
+		},
 	}
 
-	if !strings.Contains(result.Message, "invalid input") {
-		t.Errorf("Message should contain error text, got %v", result.Message)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := cleanPython(tt.input)
 
-	if len(result.Stack) == 0 {
-		t.Error("Stack should not be empty")
+			if result.Type != tt.expectedType {
+				t.Errorf("Type = %v, want %v", result.Type, tt.expectedType)
+			}
+
+			if !strings.Contains(result.Message, tt.expectedMsg) {
+				t.Errorf("Message should contain %q, got %v", tt.expectedMsg, result.Message)
+			}
+
+			if tt.expectStack && len(result.Stack) == 0 {
+				t.Error("Stack should not be empty")
+			}
+		})
 	}
 }
 
 func TestCleanGo(t *testing.T) {
-	input := `panic: runtime error: invalid memory address or nil pointer dereference
+	tests := []struct {
+		name         string
+		input        string
+		expectedType string
+		expectedMsg  string
+		expectStack  bool
+	}{
+		{
+			name: "Standard panic",
+			input: `panic: runtime error: invalid memory address or nil pointer dereference
 [signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x123]
 
 goroutine 1 [running]:
 main.processData(...)
 	/home/user/app/main.go:42 +0x123
 main.main()
-	/home/user/app/main.go:10 +0x45`
-
-	result := cleanGo(input)
-
-	if result.Type != "panic" {
-		t.Errorf("Type = %v, want panic", result.Type)
+	/home/user/app/main.go:10 +0x45`,
+			expectedType: "panic",
+			expectedMsg:  "runtime error: invalid memory address or nil pointer dereference",
+			expectStack:  true,
+		},
+		{
+			name: "Build error",
+			input: `# github.com/user/myapp
+./main.go:15:2: undefined: fmt.Printl
+./main.go:20:15: cannot use "hello" (type untyped string) as type int in assignment`,
+			expectedType: "build error",
+			expectedMsg:  "undefined: fmt.Printl",
+			expectStack:  true,
+		},
+		{
+			name: "Test failure",
+			input: `--- FAIL: TestCalculate (0.00s)
+    calculator_test.go:25: Expected 10, got 5
+    calculator_test.go:30: Expected true, got false
+FAIL`,
+			expectedType: "test failure",
+			expectedMsg:  "Expected 10, got 5",
+			expectStack:  true,
+		},
 	}
 
-	if !strings.Contains(result.Message, "invalid memory address") {
-		t.Errorf("Message should contain panic text, got %v", result.Message)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := cleanGo(tt.input)
 
-	if len(result.Stack) == 0 {
-		t.Error("Stack should not be empty")
+			if result.Type != tt.expectedType {
+				t.Errorf("Type = %v, want %v", result.Type, tt.expectedType)
+			}
+
+			if !strings.Contains(result.Message, tt.expectedMsg) {
+				t.Errorf("Message should contain %q, got %v", tt.expectedMsg, result.Message)
+			}
+
+			if tt.expectStack && len(result.Stack) == 0 {
+				t.Error("Stack should not be empty")
+			}
+		})
 	}
 }
 

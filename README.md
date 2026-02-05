@@ -1,10 +1,18 @@
 # err
 
-Clean and normalize error messages.
+Clean and normalize error messages from **Rust, Go, Python, Node.js/JavaScript, TypeScript, and Java**.
 
 **Copy any error. Pipe to `err`. Get clean output.**
 
 Strips timestamps, paths, memory addresses, and noise. Shows you what matters.
+
+## Features
+
+-  **Multi-language support**: Rust, Go, Python, JavaScript/Node.js, TypeScript, Java
+-  **Auto-detection**: Automatically identifies error format
+-  **Comprehensive error types**: Handles compile errors, runtime errors, panics, test failures, and more
+-  **Smart filtering**: Removes noise while preserving critical information
+-  **Stack trace cleaning**: Deduplicates frames and removes irrelevant internals
 
 ## Installation
 
@@ -41,6 +49,8 @@ mv err /usr/local/bin/  # Linux/Mac
 npm test 2>&1 | err
 python script.py 2>&1 | err
 go run main.go 2>&1 | err
+cargo build 2>&1 | err
+tsc 2>&1 | err
 
 # From file
 err error.log
@@ -55,6 +65,83 @@ err -v error.log
 err -format python < traceback.txt
 ```
 
+## Supported Languages & Error Types
+
+### JavaScript/Node.js/TypeScript
+
+**Supported error types:**
+-  Standard errors (TypeError, ReferenceError, SyntaxError, etc.)
+-  Unhandled promise rejections
+-  TypeScript compile errors (TS2322, TS2339, etc.)
+-  Async/await errors
+-  Stack traces with source maps
+
+**Example:**
+```bash
+npm test 2>&1 | err
+# TypeError: Cannot read property 'foo' of undefined
+#   at Object.<anonymous> (index.js:42:5)
+#   at Module._compile (loader.js:1063:30)
+```
+
+### Python
+
+**Supported error types:**
+-  Standard exceptions (ValueError, TypeError, AttributeError, etc.)
+-  Syntax errors
+-  Import/Module errors
+-  Indentation errors
+-  Full tracebacks
+
+**Example:**
+```bash
+python script.py 2>&1 | err
+# ModuleNotFoundError: No module named 'nonexistent_package'
+#   File "main.py", line 3, in <module>
+#   File "mymodule.py", line 10, in <module>
+```
+
+### Go
+
+**Supported error types:**
+-  Panics (runtime errors, nil pointer dereference, etc.)
+-  Build errors (undefined references, type mismatches, etc.)
+-  Test failures
+-  Fatal errors (concurrent map writes, etc.)
+-  Goroutine stack traces
+
+**Example:**
+```bash
+go build 2>&1 | err
+# build error: undefined: fmt.Printl
+#   ./main.go:15:2
+#   ./main.go:20:15
+```
+
+### Rust
+
+**Supported error types:**
+-  Compile errors (E0382, E0277, etc.)
+-  Panics (index out of bounds, unwrap on None, etc.)
+-  Assertion failures
+-  Backtraces (with RUST_BACKTRACE=1)
+-  Borrow checker errors
+
+**Example:**
+```bash
+cargo build 2>&1 | err
+# E0382: borrow of moved value: `s`
+#   src/main.rs:5:20
+```
+
+### Java
+
+**Supported error types:**
+-  Exceptions (NullPointerException, IllegalArgumentException, etc.)
+-  Stack traces
+-  Caused by chains
+-  Filtered framework internals
+
 ## What it does
 
 Reads error messages and outputs clean, normalized versions by:
@@ -64,75 +151,74 @@ Reads error messages and outputs clean, normalized versions by:
 - Simplifying file paths to filenames
 - Filtering relevant stack frames
 - Deduplicating repeated frames
-
-## Supported formats
-
-- JavaScript/Node.js
-- Python
-- Java
-- Go
-- Rust
-
-Auto-detects format by default.
+- Removing language-specific internals (std lib, framework code)
 
 ## Examples
 
-### JavaScript
+### TypeScript Compile Error
 
 Input:
 ```
-2024-01-28T14:10:36.123Z TypeError: Cannot read property 'foo' of undefined
-    at Object.<anonymous> (/Users/dev/projects/myapp/src/index.js:42:5)
-    at Module._compile (internal/modules/cjs/loader.js:1063:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1092:10)
+src/index.ts:42:5 - error TS2322: Type 'string' is not assignable to type 'number'.
+
+42     const count: number = "hello";
+       ~~~~~
 ```
 
 Output:
 ```
-TypeError: Cannot read property 'foo' of undefined
-  at Object.<anonymous> (index.js:42:5)
-  at Module._compile (loader.js:1063:30)
-  at Object.Module._extensions..js (loader.js:1092:10)
+TS2322: Type 'string' is not assignable to type 'number'.
 ```
 
-### Python
+### Rust Compile Error
 
 Input:
 ```
-Traceback (most recent call last):
-  File "/home/user/projects/app/main.py", line 42, in <module>
-    result = process_data(None)
-  File "/home/user/projects/app/utils.py", line 15, in process_data
-    return data.strip()
-AttributeError: 'NoneType' object has no attribute 'strip'
+error[E0382]: borrow of moved value: `s`
+  --> src/main.rs:5:20
+   |
+3  |     let s = String::from("hello");
+   |         - move occurs because `s` has type `String`
+5  |     println!("{}", s);
+   |                    ^ value borrowed here after move
 ```
 
 Output:
 ```
-AttributeError: 'NoneType' object has no attribute 'strip'
-  File "main.py", line 42, in <module>
-  File "utils.py", line 15, in process_data
+E0382: borrow of moved value: `s`
+  src/main.rs:5:20
 ```
 
-### Go
+### Go Build Error
 
 Input:
 ```
-panic: runtime error: invalid memory address or nil pointer dereference
-[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x4a5f23]
-
-goroutine 1 [running]:
-main.processData(0x0, 0x0, 0x0)
-	/Users/dev/go/src/app/main.go:42 +0x123
-main.main()
-	/Users/dev/go/src/app/main.go:10 +0x45
+# github.com/user/myapp
+./main.go:15:2: undefined: fmt.Printl
+./main.go:20:15: cannot use "hello" (type untyped string) as type int in assignment
 ```
 
 Output:
 ```
-panic: runtime error: invalid memory address or nil pointer dereference
-  main.processData main.go:42 +[HEX]
-  main.main main.go:10 +[HEX]
+build error: undefined: fmt.Printl
+  ./main.go:15:2
+  ./main.go:20:15
+```
+
+### Python Syntax Error
+
+Input:
+```
+  File "/home/user/projects/app/script.py", line 15
+    if x == 5
+            ^
+SyntaxError: invalid syntax
+```
+
+Output:
+```
+SyntaxError: invalid syntax
+  File "script.py", line 15
 ```
 
 ## Options
@@ -140,7 +226,7 @@ panic: runtime error: invalid memory address or nil pointer dereference
 ```
 -format string
     Error format: auto, javascript, python, java, go, rust
-    Default: auto
+    Default: auto (detect automatically)
 
 -v  Verbose output with structured fields
 

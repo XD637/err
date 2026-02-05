@@ -1,0 +1,6 @@
+2024-01-28T14:10:36.123Z UnhandledPromiseRejectionWarning: Error: Database connection failed
+    at Database.connect (/home/user/projects/myapp/src/database.js:42:15)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at async Server.start (/home/user/projects/myapp/src/server.js:28:5)
+(node:12345) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 1)
+(node:12345) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
