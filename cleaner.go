@@ -6,7 +6,6 @@ import (
 
 	// Import all parsers to register them
 	_ "github.com/XD637/err/parsers/golang"
-	_ "github.com/XD637/err/parsers/java"
 	_ "github.com/XD637/err/parsers/javascript"
 	_ "github.com/XD637/err/parsers/python"
 	_ "github.com/XD637/err/parsers/rust"

@@ -28,6 +28,11 @@ func (p *Parser) Detect(text string) int {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
+		// npm errors: high confidence
+		if strings.HasPrefix(line, "npm ERR!") {
+			return 100
+		}
+
 		// TypeScript compile errors: high confidence
 		if strings.Contains(line, " - error TS") {
 			return 100
@@ -59,6 +64,11 @@ func (p *Parser) Parse(text string) *errclean.CleanedError {
 
 	var stackFrames []string
 	foundError := false
+
+	// Check for npm errors first
+	if strings.Contains(text, "npm ERR!") {
+		return parseNpmError(lines)
+	}
 
 	for i, line := range lines {
 		line = strings.TrimSpace(line)
@@ -130,5 +140,54 @@ func (p *Parser) Parse(text string) *errclean.CleanedError {
 
 	result.Stack = errclean.DeduplicateFrames(stackFrames)
 	result.Message = errclean.StripNoise(result.Message)
+	return result
+}
+
+// parseNpmError handles npm-specific error formats
+func parseNpmError(lines []string) *errclean.CleanedError {
+	result := &errclean.CleanedError{
+		Type: "npm",
+	}
+
+	var errorCode string
+	var mainMessage string
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Remove "npm ERR!" prefix
+		if strings.HasPrefix(trimmed, "npm ERR!") {
+			content := strings.TrimSpace(strings.TrimPrefix(trimmed, "npm ERR!"))
+
+			// Extract error code: "code ENOENT"
+			if strings.HasPrefix(content, "code ") {
+				errorCode = strings.TrimPrefix(content, "code ")
+				continue
+			}
+
+			// Extract main error message (usually starts with error code)
+			if errorCode != "" && strings.HasPrefix(content, strings.ToLower(errorCode)) {
+				mainMessage = content
+				break
+			}
+
+			// Fallback: capture first substantial message
+			if mainMessage == "" && len(content) > 10 && !strings.HasPrefix(content, "syscall") &&
+				!strings.HasPrefix(content, "path") && !strings.HasPrefix(content, "errno") {
+				mainMessage = content
+			}
+		}
+	}
+
+	if errorCode != "" {
+		result.Type = "npm " + errorCode
+	}
+
+	if mainMessage != "" {
+		result.Message = errclean.StripNoise(mainMessage)
+	} else if errorCode != "" {
+		result.Message = errorCode
+	}
+
 	return result
 }

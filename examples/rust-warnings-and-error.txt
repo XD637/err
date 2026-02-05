@@ -1,0 +1,25 @@
+warning: unused variable: `x`
+ --> src/main.rs:10:9
+  |
+10 |     let x = 5;
+   |         ^ help: if this is intentional, prefix it with an underscore: `_x`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: function is never used: `helper`
+  --> src/lib.rs:42:4
+   |
+42 | fn helper() {
+   |    ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+error[E0425]: cannot find value `undefined_var` in this scope
+  --> src/main.rs:15:20
+   |
+15 |     println!("{}", undefined_var);
+   |                    ^^^^^^^^^^^^^ not found in this scope
+
+error: aborting due to previous error; 2 warnings emitted
+
+For more information about this error, try `rustc --explain E0425`.

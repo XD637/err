@@ -13,7 +13,7 @@ var (
 	flagVersion = flag.Bool("version", false, "print version")
 	flagHelp    = flag.Bool("help", false, "print help")
 	flagVerbose = flag.Bool("v", false, "verbose output")
-	flagFormat  = flag.String("format", "auto", "error format (auto|javascript|python|java|go|rust)")
+	flagFormat  = flag.String("format", "auto", "error format (auto|javascript|python|go|rust)")
 )
 
 func main() {
