@@ -1,8 +1,8 @@
 # err
 
-Clean and normalize error messages from Rust, Go, Python, and JavaScript/TypeScript.
+Pipe your build/test commands to `err` and see only the errors you need to fix.
 
-Strip timestamps, paths, memory addresses, and noise. See what matters.
+No timestamps. No noise. Just the error.
 
 ## Installation
 
